@@ -45,8 +45,7 @@ app.post('/addMessage', async (req, res) => {
     const messagesArray = text.split('\n');
     const nonEmptyMessages = messagesArray.filter(msg => msg.trim() !== '');
 
-    // ล้าง array ข้อความเดิม
-    messages.length = 0;
+    
 
     // ใช้ Promise.all() เพื่อดึงข้อมูล redeemablePoints ทุกข้อความแบบ parallel
     await Promise.all(nonEmptyMessages.map(async (msg) => {
@@ -87,7 +86,8 @@ app.post('/addMessage', async (req, res) => {
         console.error(`Error fetching redeemable points for "${msg}":`, error.message);
       }
     }));
-
+    // ล้าง array ข้อความเดิม
+    messages.length = 0;
     res.send('เพิ่มข้อความเรียบร้อย');
   } else {
     res.status(400).send('กรุณาใส่ข้อความ');
@@ -96,5 +96,5 @@ app.post('/addMessage', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
