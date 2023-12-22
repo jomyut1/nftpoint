@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #redeemablePoints {
+          white-space: pre-line;
+        }
+      </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Redeemable Points</title>
+</head>
+<body>
+  <h1>Check Redeemable Points</h1>
+
+  <form id="messageForm" action="/addMessage" method="post">
+    <label for="message">Wallets:</label>
+    <textarea id="message" name="text" rows="4" required></textarea>
+    <button type="submit">Add Wallet</button>
+  </form>
+
+  <h2>Redeemable Points</h2>
+
+
+  <div id="redeemablePoints"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('redeemablePoints', (data) => {
+      displayRedeemablePoints(data.msg, data.redeemablePoints);
+    });
+
+    function displayRedeemablePoints(msg, redeemablePoints) {
+  const redeemablePointsDiv = document.getElementById('redeemablePoints');
+  
+  // เช็คว่ามีข้อความมากกว่า 1 หรือไม่
+  const separator = redeemablePointsDiv.innerHTML === '' ? '' : '<br>';
+  
+  // เพิ่มข้อความใหม่
+  redeemablePointsDiv.innerHTML += `${separator}${msg}: ${redeemablePoints}`;
+}
+    async function displayMessages() {
+      const response = await fetch('/messages');
+      const messages = await response.json();
+
+      const messagesList = document.getElementById('messages');
+      messagesList.innerHTML = '';
+
+      messages.forEach(msg => {
+        const listItem = document.createElement('li');
+        listItem.textContent = msg;
+        messagesList.appendChild(listItem);
+
+        // แสดง redeemablePoints ทันทีที่มีการเพิ่มข้อความใหม่
+        displayRedeemablePoints(msg ,0); // ค่า redeemablePoints สามารถปรับให้เป็นค่าที่ต้องการ
+      });
+    }
+
+    displayMessages();
+
+    const messageForm = document.getElementById('messageForm');
+    messageForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(messageForm);
+      const text = formData.get('text');
+
+      const response = await fetch('/addMessage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      const result = await response.text();
+      console.log(result);
+
+      displayMessages();
+    });
+  </script>
+</body>
+</html>
